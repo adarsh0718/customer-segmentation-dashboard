@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Segmentation & Analytics Dashboard</title>
+    <!-- Google Fonts & Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Dashboard Header -->
+        <header class="animate-fade-in" style="animation-delay: 0.1s">
+            <div class="brand-section">
+                <span class="brand-logo">👥</span>
+                <h1 class="brand-title">Customer Segmentation &amp; Analytics</h1>
+            </div>
+            
+            <div class="header-controls">
+                <!-- Drag and Drop Import Container -->
+                <div class="upload-zone" id="drop-zone">
+                    <span class="upload-icon">📥</span>
+                    <div class="upload-text">
+                        Drag &amp; drop data file or <span>browse</span>
+                    </div>
+                    <input type="file" id="file-input" accept=".csv, .xlsx, .xls">
+                </div>
+                <!-- Reset Data Button -->
+                <button class="btn btn-secondary" id="btn-reset" style="width: auto;">
+                    🔄 Reset Default
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Container -->
+        <div class="dashboard-grid">
+            
+            <!-- Sidebar Parameter Settings -->
+            <aside class="sidebar animate-fade-in" style="animation-delay: 0.2s">
+                <!-- Cluster Count Control -->
+                <div class="glass-card control-group">
+                    <label class="control-label">Number of Clusters (K)</label>
+                    <div class="range-slider-container">
+                        <input type="range" min="2" max="8" value="4" class="range-slider" id="cluster-slider">
+                        <span class="slider-val" id="cluster-slider-val">4</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+                        Adjust K-Means parameters to define customer groupings.
+                    </p>
+                </div>
+
+                <!-- Feature Selection List -->
+                <div class="glass-card control-group">
+                    <label class="control-label">Clustering Features</label>
+                    <div class="checkbox-list" id="feature-checkboxes">
+                        <label class="checkbox-item checked">
+                            <input type="checkbox" value="Monetary" checked>
+                            <span>Monetary (Total Spend)</span>
+                        </label>
+                        <label class="checkbox-item checked">
+                            <input type="checkbox" value="Frequency" checked>
+                            <span>Frequency (Order Count)</span>
+                        </label>
+                        <label class="checkbox-item checked">
+                            <input type="checkbox" value="Recency" checked>
+                            <span>Recency (Last Active Days)</span>
+                        </label>
+                        <label class="checkbox-item checked">
+                            <input type="checkbox" value="Age" checked>
+                            <span>Age (Demographic)</span>
+                        </label>
+                        <label class="checkbox-item checked">
+                            <input type="checkbox" value="Annual_Income_INR" checked>
+                            <span>Annual Income (INR)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Run / Actions Section -->
+                <div class="glass-card" style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-primary" id="btn-run-clustering">
+                        ⚡ Run Segmentation
+                    </button>
+                    <button class="btn btn-secondary" id="btn-export-data">
+                        📤 Export Customer File
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="main-panel">
+                
+                <!-- KPI Summary Cards -->
+                <section class="kpi-container animate-fade-in" style="animation-delay: 0.3s">
+                    <!-- Total Customers -->
+                    <div class="glass-card kpi-card kpi-total-cust">
+                        <div class="kpi-title">Total Customers</div>
+                        <div class="kpi-value" id="kpi-total-customers">0</div>
+                        <div class="kpi-indicator">Database records processed</div>
+                    </div>
+                    <!-- Number of Clusters -->
+                    <div class="glass-card kpi-card kpi-num-clusters">
+                        <div class="kpi-title">Number of Clusters</div>
+                        <div class="kpi-value" id="kpi-segments">4</div>
+                        <div class="kpi-indicator">Groups identified via ML</div>
+                    </div>
+                    <!-- Average Silhouette Score -->
+                    <div class="glass-card kpi-card kpi-silhouette">
+                        <div class="kpi-title">Clustering Quality</div>
+                        <div class="kpi-value" id="kpi-quality">0.00</div>
+                        <div class="kpi-indicator">Silhouette validation metric</div>
+                    </div>
+                    <!-- Average Customer Spending -->
+                    <div class="glass-card kpi-card kpi-avg-spending">
+                        <div class="kpi-title">Avg Annual Spend</div>
+                        <div class="kpi-value" id="kpi-avg-spend">₹0</div>
+                        <div class="kpi-indicator">Per customer average spend</div>
+                    </div>
+                </section>
+
+                <!-- Charts Section Row 1 -->
+                <section class="charts-grid animate-fade-in" style="animation-delay: 0.4s">
+                    <!-- 2D PCA Scatter Plot -->
+                    <div class="glass-card">
+                        <div class="chart-header">
+                            <h2 class="chart-title">🌌 Interactive 2D Customer Map (PCA)</h2>
+                            <p style="font-size: 11px; color: var(--text-muted);">
+                                Multi-dimensional stats reduced to 2D coordinates
+                            </p>
+                        </div>
+                        <div id="scatter-chart-container">
+                            <!-- Target for Scatter Plot -->
+                            <div id="scatter-chart"></div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Archetypes / Segment Cards -->
+                    <div class="glass-card">
+                        <div class="chart-header">
+                            <h2 class="chart-title">🏷️ Segment Descriptions &amp; Stats</h2>
+                        </div>
+                        <div class="segment-profiles-container" id="segment-profiles">
+                            <!-- Dynamic cluster summaries will go here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Detailed Breakdown Row 2 -->
+                <section class="details-grid animate-fade-in" style="animation-delay: 0.5s">
+                    <!-- Radar/Grouped Bar Comparison Chart -->
+                    <div class="glass-card">
+                        <div class="chart-header">
+                            <h2 class="chart-title">📊 Segment Profile Comparisons</h2>
+                        </div>
+                        <div id="comparison-chart" style="height: 320px;"></div>
+                    </div>
+
+                    <!-- Demographic Details -->
+                    <div class="glass-card">
+                        <div class="chart-header">
+                            <h2 class="chart-title">🌍 Region &amp; Gender Demographics</h2>
+                        </div>
+                        <div id="demographic-chart" style="height: 320px;"></div>
+                    </div>
+
+                    <!-- Customer Table -->
+                    <div class="glass-card table-card">
+                        <div class="table-header-controls">
+                            <h2 class="chart-title">📋 Segmented Customer Directory</h2>
+                            
+                            <div class="search-input-wrapper">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" class="search-input" id="table-search" placeholder="Search customer ID or region...">
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table id="customer-table">
+                                <thead>
+                                    <tr>
+                                        <th data-sort="Customer_ID">ID <span>▲▼</span></th>
+                                        <th data-sort="Cluster">Assigned Segment <span>▲▼</span></th>
+                                        <th data-sort="Age">Age <span>▲▼</span></th>
+                                        <th data-sort="Annual_Income_INR">Annual Income <span>▲▼</span></th>
+                                        <th data-sort="Recency">Recency (Days) <span>▲▼</span></th>
+                                        <th data-sort="Frequency">Frequency (Orders) <span>▲▼</span></th>
+                                        <th data-sort="Monetary">Monetary (Spend) <span>▲▼</span></th>
+                                        <th data-sort="Region">Region <span>▲▼</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customer-table-body">
+                                    <!-- Dynamic rows will go here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Table Pagination -->
+                        <div class="pagination">
+                            <div id="pagination-info">Showing 1 to 10 of 300 customers</div>
+                            <div class="pagination-buttons">
+                                <button class="page-btn" id="btn-prev-page" disabled>Previous</button>
+                                <button class="page-btn" id="btn-next-page">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Spinner Loading Overlay -->
+    <div class="loading-overlay" id="loading-spinner">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-spinner-text">Processing Machine Learning Clusters...</div>
+    </div>
+
+    <!-- Main JS Scripts -->
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tables.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
