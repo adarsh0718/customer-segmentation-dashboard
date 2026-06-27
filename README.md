@@ -8,11 +8,14 @@
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![ApexCharts](https://img.shields.io/badge/ApexCharts-00B4D8?style=for-the-badge&logo=chart.js&logoColor=white)
+![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-00C851?style=for-the-badge&logo=github&logoColor=white)
 
 **An interactive machine learning application that segments customers based on purchase behavior and demographics using K-Means clustering.**  
 Includes a gorgeous glassmorphic dark-theme analytics frontend.
 
-[📂 View Code](https://github.com/adarsh0718/customer-segmentation-dashboard)
+### 🌐 [▶ Open Live Demo](https://adarsh0718.github.io/customer-segmentation-dashboard/) &nbsp;&nbsp; [📂 View Code](https://github.com/adarsh0718/customer-segmentation-dashboard)
+
+> ⚡ **Instant load** — runs entirely in your browser with no server required.
 
 </div>
 
@@ -105,6 +108,19 @@ pip install -r requirements.txt
 python app.py
 ```
 Open **[http://localhost:5000](http://localhost:5000)** in your browser!
+
+---
+
+## 🌐 Live Demo
+
+**👉 [https://adarsh0718.github.io/customer-segmentation-dashboard/](https://adarsh0718.github.io/customer-segmentation-dashboard/)**
+
+- ✅ Opens instantly — no server spin-up wait
+- ✅ Full K-Means clustering + PCA visualization runs in your browser
+- ✅ Upload your own customer CSV to segment it live
+- ✅ Export the fully tagged segmented customer database as CSV
+
+> **Note:** To enable GitHub Pages, go to **Settings → Pages** and set the source to the `gh-pages` branch.
 
 ---
 
